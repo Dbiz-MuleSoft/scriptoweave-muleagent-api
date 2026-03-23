@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:ms-agentforce="http://www.mulesoft.org/schema/mule/ms-agentforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ms-agentforce http://www.mulesoft.org/schema/mule/ms-agentforce/current/mule-ms-agentforce.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<ms-agentforce:config
+		name="Agentforce_Configuration_agent"
+		doc:name="Agentforce Configuration"
+		doc:id="10354387-e8d4-4ecb-a21a-c25c5764cbc6">
+		<ms-agentforce:oauth-client-credentials-connection
+			connectionTimeout="600000" connectionIdleTimeout="60">
+			<ms-agentforce:oauth-client-credentials
+				clientId="3MVG97L7PWbPq6Uzl3TeSnKZVUAOrnzLMFhQpti.FiVf_9h_Cv0xRzq0aYL2DTX4CWF1o0UqH15Os.1opbMC2"
+				clientSecret="87B641546B2518048A55240B9FDC17746EAB84B8644DC11C3E840778E00CB9D1"
+				tokenUrl="https://orgfarm-fddb467dc9-dev-ed.develop.my.salesforce.com/services/oauth2/token" />
+		</ms-agentforce:oauth-client-credentials-connection>
+	</ms-agentforce:config>
+	<sub-flow name="agent-api-userstory-analysis"
+		doc:id="10354387-e8d4-4ecb-a21a-c25c5764cbc6">
+		<logger level="INFO" doc:name="Entry Logger"
+			doc:id="833415c5-c42f-4922-abe1-b4fffd65d725" />
+		<flow-ref doc:name="agent-api-start-conversation" doc:id="997e020d-3ed4-41b8-9560-6431d5b6cda5" name="agent-api-start-conversation" />
+		<ee:transform doc:name="Final Mapping"
+			doc:id="92f9afc7-7848-4f68-96d8-31247e074bb8">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var formattedPayload = (read(payload.analysis, "application/json"))
+---
+{
+    "sessionId": payload.sessionId,
+    "analysis": {
+    "complexity": formattedPayload.complexity default "NA",
+    "developmentEffort": formattedPayload.developmentEffort default "NA",
+    "requirementClarityIndex": formattedPayload.requirementClarityIndex,
+    "purposeAndGoal": formattedPayload.purposeAndGoal default "NA",
+    "stakeholders": formattedPayload.stakeholders joinBy " | " default "NA",
+    "keyRequirements": formattedPayload.keyRequirements joinBy " | " default "NA",
+    "successCriteria": formattedPayload.successCriteria joinBy " | " default "NA",
+    "technicalConsiderations": formattedPayload.technicalConsiderations default "NA",
+    "integrationChallenges": formattedPayload.integrationChallenges default "NA"
+
+}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="agent-api-generate-questions"
+		doc:id="94f84c6d-fd2e-45df-8cc6-eacc232fbd55">
+		<logger level="INFO" doc:name="Entry Logger"
+			doc:id="cb38f775-25ec-462a-a005-069525210789" />
+		<choice doc:name="Choice"
+			doc:id="54acbe4a-9b46-4b9a-b9ae-7e72acc771e0">
+			<when expression="#[!isEmpty(attributes.queryParams.sessionId)]">
+				<ee:transform doc:name="sessionID"
+					doc:id="18e1f2b3-c277-4a98-bea3-73a1bfa18f17">
+					<ee:message />
+					<ee:variables>
+						<ee:set-variable variableName="message"><![CDATA[payload]]></ee:set-variable>
+						<ee:set-variable variableName="sessionId"><![CDATA[attributes.queryParams.sessionId]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="agent-api-continue-conversation"
+					doc:id="715ea062-aa79-42e8-b27c-ecb0644691eb"
+					name="agent-api-continue-conversation" />
+				<flow-ref doc:name="agent-api-end-conversation"
+					doc:id="e13190ab-4294-401c-adbf-f762cda04493"
+					name="agent-api-end-conversation" target="end" />
+				<ee:transform doc:name="Final Mapping"
+					doc:id="382d65ef-6547-4c0e-87e5-a71d65677c39">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var formattedPayload = (read(payload.analysis, "application/json"))
+---
+{
+    "sessionId": payload.sessionId,
+    "analysis": {
+    "dataAndIntegrations": formattedPayload.dataAndIntegrations joinBy " | " default "NA",
+    "flowDesign": formattedPayload.flowDesign joinBy " | "  default "NA",
+    "errorHandling": formattedPayload.errorHandling joinBy " | "  default "NA",
+    "performance": formattedPayload.performance joinBy " | "  default "NA"
+}
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when
+				expression="#[isEmpty(attributes.queryParams.sessionId) and isEmpty(payload)]">
+				<raise-error doc:name="Raise error"
+					doc:id="6b4d8281-d1ed-4350-ba76-6cb5d53eaac8"
+					type="CUSTOM:CUSTOM_ERROR"
+					description="sessionId and message is empty" />
+			</when>
+			<otherwise>
+				<flow-ref doc:name="agent-api-start-conversation"
+					doc:id="f96fb39d-7627-4556-a008-b131f2714b2e"
+					name="agent-api-start-conversation" />
+				<flow-ref doc:name="agent-api-end-conversation"
+					doc:id="cf59fefa-0b00-4df7-9f1e-d6f85d8433dd"
+					name="agent-api-end-conversation" target="end" />
+				<ee:transform doc:name="Final Mapping"
+					doc:id="e46254fd-15de-4605-91df-ad32c5b02fa6">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var formattedPayload = (read(payload.analysis, "application/json"))
+---
+{
+    "sessionId": payload.sessionId,
+    "analysis": {
+    "dataAndIntegrations": formattedPayload.dataAndIntegrations joinBy " | " default "NA",
+    "flowDesign": formattedPayload.flowDesign joinBy " | "  default "NA",
+    "errorHandling": formattedPayload.errorHandling joinBy " | "  default "NA",
+    "performance": formattedPayload.performance joinBy " | "  default "NA"
+}
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</sub-flow>
+</mule>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ms-agentforce="http://www.mulesoft.org/schema/mule/ms-agentforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ms-agentforce http://www.mulesoft.org/schema/mule/ms-agentforce/current/mule-ms-agentforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="design-analysis-IIDFlow" doc:id="0b283e38-602c-45f5-8992-166bb87226a2" >
+		<ee:transform doc:name="Transform Message" doc:id="a72a2ef6-05fc-4afe-a9aa-cc9d16481f1d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text
+---
+(payload replace  "(" with "") replace ")" with ""]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="9d2af72f-f7c7-4ff1-ac46-698da6664d2f" url="https://kroki.io/graphviz/svg">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/java
+---
+{
+	"Content-Type":'text/plain'
+}]]]></http:headers>
+		</http:request>
+	</flow>
+</mule>

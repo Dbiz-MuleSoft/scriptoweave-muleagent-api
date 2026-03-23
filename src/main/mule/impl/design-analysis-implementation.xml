@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ms-agentforce="http://www.mulesoft.org/schema/mule/ms-agentforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ms-agentforce http://www.mulesoft.org/schema/mule/ms-agentforce/current/mule-ms-agentforce.xsd">
+	<flow name="design-analysis-implementationFlow" doc:id="59557938-0ffa-4394-bb33-a08a6dcf189b" >
+		<ee:transform doc:name="prompt" doc:id="41825aab-d629-4bfd-8404-d95bb1265db2" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="message" ><![CDATA[%dw 2.0
+output application/json
+---
+"provide me an valid design implementation json structure for " ++ vars.incomingPayload.prompt ]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ms-agentforce:start-agent-conversation doc:name="Start agent conversation" doc:id="b044741d-bc66-4241-93db-ad9ca8fb14e8" config-ref="Agentforce_Configuration_agent" agent="0Xxg5000000b6WHCAY" />
+		<set-variable value="#[payload.sessionId]" doc:name="sessionId" doc:id="2794a88a-4468-4b0c-9e30-b39e7bf8f78c" variableName="sessionId" />
+		<flow-ref doc:name="agent-api-continue-conversation" doc:id="523a17c0-b9f4-419e-81e8-32d98cc7d47c" name="agent-api-continue-conversation" />
+		<ee:transform doc:name="Transform Message" doc:id="9785b643-1f18-4db1-8113-945d73df9167">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+//var analysis = (read(payload.analysis , "application/json"))
+---
+{
+    "sessionId": payload.sessionId,
+    "analysis": ((read(payload.analysis , "application/json")) ) default payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d2fa769d-ad18-48a9-9f41-381f7f9821f3" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="6c600cd4-ff4b-4646-93d3-e9f9a70c7207" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"sessionId": vars.sessionId,
+	"message": payload.analysis default "something went wrong please try again later !"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
