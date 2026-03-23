@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:ms-agentforce="http://www.mulesoft.org/schema/mule/ms-agentforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ms-agentforce http://www.mulesoft.org/schema/mule/ms-agentforce/current/mule-ms-agentforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="agent-api-continue-conversation" doc:id="0b52916b-6e58-4987-8907-d0cd63f9afdc" >
+		<ms-agentforce:continue-agent-conversation doc:name="Continue agent conversation" doc:id="da141de0-fc9e-41e6-9c8f-106c23b557f6" config-ref="Agentforce_Configuration_agent" messageSequenceNumber="1" readTimeout="60" readTimeoutUnit="SECONDS">
+			<ms-agentforce:message ><![CDATA[#[vars.message]]]></ms-agentforce:message>
+			<ms-agentforce:session-id ><![CDATA[#[vars.sessionId]]]></ms-agentforce:session-id>
+		</ms-agentforce:continue-agent-conversation>
+		<ee:transform doc:name="payload ++ sessionID" doc:id="31692f40-2352-4136-a000-18040a2c4140" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"sessionId": vars.sessionId,
+	"analysis": payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="cacf9a46-adf1-4d7a-a3cf-24933b85a09c" message="#[payload]" />
+	</sub-flow>
+	<sub-flow name="agent-api-end-conversation" doc:id="b1ecf1be-74ee-40fa-9dce-365f88b44bf6" >
+		<ms-agentforce:end-agent-conversation doc:name="End agent conversation" doc:id="1c20b74e-8681-432b-b2bd-94761fb10c39" config-ref="Agentforce_Configuration_agent" >
+			<ms-agentforce:session-id ><![CDATA[#[vars.sessionId]]]></ms-agentforce:session-id>
+		</ms-agentforce:end-agent-conversation>
+		<logger level="INFO" doc:name="Logger" doc:id="be580fbf-842b-41f5-866f-be2c2cb6ab6a" message="#[payload]" />
+	</sub-flow>
+	<sub-flow name="agent-api-start-conversation" doc:id="f8ad8ef9-9668-48a1-acb0-cf5ec7d34075" >
+		<ee:transform doc:name="prompt" doc:id="ae74466a-4f94-43d1-9ffc-683aea2aa4d7" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="message" ><![CDATA[payload.prompt]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ms-agentforce:start-agent-conversation agent="0Xxg5000000SCflCAG" doc:name="Start agent conversation" doc:id="0cb6cd96-a039-4d70-a13b-23a17fd20dc1" config-ref="Agentforce_Configuration_agent" byPassUser="true" />
+		<set-variable value="#[payload.sessionId]" doc:name="sessionId" doc:id="8cae8f9f-c1be-44bc-9163-9ca9b38d481e" variableName="sessionId" />
+		<flow-ref doc:name="agent-api-continue-conversation" doc:id="ad9127f1-182a-46c6-86c6-981430418871" name="agent-api-continue-conversation" />
+	</sub-flow>
+</mule>

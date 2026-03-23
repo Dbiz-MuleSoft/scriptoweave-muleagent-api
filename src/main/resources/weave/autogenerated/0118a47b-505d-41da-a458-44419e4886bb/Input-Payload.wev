@@ -1,0 +1,7 @@
+%dw 2.0
+
+type auto_0118a47b_505d_41da_a458_44419e4886bb_Input_Payload = {
+  prompt: String, 
+  _?: Any
+}
+

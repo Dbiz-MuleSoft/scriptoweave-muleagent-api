@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="design-analysis-generateQuestionsFlow" doc:id="0118a47b-505d-41da-a458-44419e4886bb" >
+		<flow-ref doc:name="Generate questions" doc:id="65ebfce2-afe0-45b3-888f-bb229cf939de" name="agent-api-continue-conversation" />
+		<ee:transform doc:name="Final Mapping" doc:id="8c51dc58-8f22-4bb6-b87c-840a9e60a2af" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var formattedPayload = (read(payload.analysis, "application/json"))
+---
+{
+    "sessionId": payload.sessionId,
+    "analysis": {
+    "designRealatedQuestions": formattedPayload.DesignRealatedQuestions joinBy " | " default "NA",
+    "configurationRelatedQuestions": formattedPayload.configurationRelatedQuestions joinBy " | "  default "NA",
+    "securityRelatedQuestions": formattedPayload.securityRelatedQuestions joinBy " | "  default "NA",
+    "deploymentRelatedQuestions": formattedPayload.deploymentRelatedQuestions joinBy " | "  default "NA",
+    "otherGenericQuestions": formattedPayload.otherGenericQuestions joinBy " | "  default "NA"
+}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

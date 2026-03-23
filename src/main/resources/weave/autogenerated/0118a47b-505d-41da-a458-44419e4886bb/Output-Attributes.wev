@@ -1,0 +1,110 @@
+%dw 2.0
+
+type auto_0118a47b_505d_41da_a458_44419e4886bb_Output_Attributes = {|
+  messages?: Array<com_mulesoft_connector_agentforce_api_metadata_InvokeAgentResponseAttributes_Message {"typeAlias": "Message",
+  "class": "com.mulesoft.connector.agentforce.api.metadata.InvokeAgentResponseAttributes\$Message",
+  "typeId": "com.mulesoft.connector.agentforce.api.metadata.InvokeAgentResponseAttributes.Message"}>
+|} {"class": "com.mulesoft.connector.agentforce.api.metadata.InvokeAgentResponseAttributes",
+"typeId": "com.mulesoft.connector.agentforce.api.metadata.InvokeAgentResponseAttributes",
+"typeAlias": "InvokeAgentResponseAttributes"}
+type com_mulesoft_connector_agentforce_api_metadata_InvokeAgentResponseAttributes_Message = {|
+  collect?: Array<com_mulesoft_connector_agentforce_api_metadata_Collect {"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect",
+  "typeAlias": "Collect",
+  "class": "com.mulesoft.connector.agentforce.api.metadata.Collect"}>, 
+  contentSafe?: Boolean {"typeId": "boolean"}, 
+  feedbackId?: String, 
+  id?: String, 
+  message?: String, 
+  planId?: String, 
+  reason?: String, 
+  "type"?: String
+|} {"typeAlias": "Message",
+"class": "com.mulesoft.connector.agentforce.api.metadata.InvokeAgentResponseAttributes\$Message",
+"typeId": "com.mulesoft.connector.agentforce.api.metadata.InvokeAgentResponseAttributes.Message"}
+type com_mulesoft_connector_agentforce_api_metadata_Collect = {|
+  data?: com_mulesoft_connector_agentforce_api_metadata_Collect_CollectData {"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.CollectData",
+  "typeAlias": "CollectData",
+  "class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$CollectData"}, 
+  targetProperty?: String, 
+  targetType?: String
+|} {"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect",
+"typeAlias": "Collect",
+"class": "com.mulesoft.connector.agentforce.api.metadata.Collect"}
+type com_mulesoft_connector_agentforce_api_metadata_Collect_CollectData = {|
+  property?: String, 
+  "type"?: String, 
+  value?: Array<com_mulesoft_connector_agentforce_api_metadata_Collect_SearchResult {"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.SearchResult",
+  "typeAlias": "SearchResult",
+  "class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$SearchResult"}>
+|} {"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.CollectData",
+"typeAlias": "CollectData",
+"class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$CollectData"}
+type com_mulesoft_connector_agentforce_api_metadata_Collect_SearchResult = {|
+  SObjectInfo?: com_mulesoft_connector_agentforce_api_metadata_Collect_SObjectInfo {"class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$SObjectInfo",
+  "typeAlias": "SObjectInfo",
+  "typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.SObjectInfo"}, 
+  data?: com_mulesoft_connector_agentforce_api_metadata_Collect_RecordData {"class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$RecordData",
+  "typeAlias": "RecordData",
+  "typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.RecordData"}, 
+  id?: String, 
+  recordTypeId?: String, 
+  title?: String
+|} {"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.SearchResult",
+"typeAlias": "SearchResult",
+"class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$SearchResult"}
+type com_mulesoft_connector_agentforce_api_metadata_Collect_RecordData = {|
+  id?: com_mulesoft_connector_agentforce_api_metadata_Collect_RecordField {"typeAlias": "RecordField",
+  "class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$RecordField",
+  "typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.RecordField"}, 
+  name?: com_mulesoft_connector_agentforce_api_metadata_Collect_RecordField_9 {"typeAlias": "RecordField",
+  "class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$RecordField",
+  "typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.RecordField"}, 
+  "type"?: com_mulesoft_connector_agentforce_api_metadata_Collect_RecordField_12 {"typeAlias": "RecordField",
+  "class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$RecordField",
+  "typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.RecordField"}
+|} {"class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$RecordData",
+"typeAlias": "RecordData",
+"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.RecordData"}
+type com_mulesoft_connector_agentforce_api_metadata_Collect_RecordField_12 = {|
+  displayValue?: String, 
+  value?: String
+|} {"typeAlias": "RecordField",
+"class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$RecordField",
+"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.RecordField"}
+
+
+type com_mulesoft_connector_agentforce_api_metadata_Collect_RecordField_9 = {|
+  displayValue?: String, 
+  value?: String
+|} {"typeAlias": "RecordField",
+"class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$RecordField",
+"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.RecordField"}
+
+
+type com_mulesoft_connector_agentforce_api_metadata_Collect_RecordField = {|
+  displayValue?: String, 
+  value?: String
+|} {"typeAlias": "RecordField",
+"class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$RecordField",
+"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.RecordField"}
+
+
+
+
+type com_mulesoft_connector_agentforce_api_metadata_Collect_SObjectInfo = {|
+  apiName?: String, 
+  label?: String
+|} {"class": "com.mulesoft.connector.agentforce.api.metadata.Collect\$SObjectInfo",
+"typeAlias": "SObjectInfo",
+"typeId": "com.mulesoft.connector.agentforce.api.metadata.Collect.SObjectInfo"}
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,171 @@
+#%RAML 1.0
+title: Agent API
+version: v1
+
+types:
+  PromptRequest:
+    type: object
+    properties:
+      prompt:
+        type: string
+        required: true
+
+/analysis:
+  post:
+    description: Analyze prompt input
+    body:
+      application/json:
+        type: PromptRequest
+        example:
+          {
+            "prompt": "As a user, I want to create a lead so that sales can track potential customers."
+          }
+    responses:
+      200:
+        body:
+          application/json:
+
+/generateQuestions:
+  post:
+    description: Generate clarification questions
+    queryParameters:
+      sessionId:
+        type: string
+        required: false
+        description: Optional session identifier
+    body:
+      application/json:
+        type: PromptRequest
+        examples:
+          withSession:
+            value:
+              {
+                "prompt": "Identify clarification questions, data gaps, integration risks, or design flaws based on the story provided"
+              }
+          withoutSession:
+            value:
+              {
+                "prompt": "Identify clarification questions, data gaps, integration risks, or design flaws based on the story provided:As a user, I want to create a lead so that sales can track potential customers."
+              }
+    responses:
+      200:
+        body:
+          application/json:
+/design:
+  /analysis:
+    post:
+      description: Analyze prompt input suggestest the design implementation specification
+      body:
+        application/json:
+          type: PromptRequest
+          example:
+            {
+              "prompt": "This high-complexity initiative centers on developing a secure, scalable, and compliant Contact API. It acts as the canonical master data source for downstream consumers, integrating an enterprise CRM (the Source of Truth) with legacy subscriber systems"
+            }
+      responses:
+        200:
+          body:
+            application/json:
+
+    /id:
+      post:
+        description: Analyze prompt input suggestest the design implementation specification
+        queryParameters:
+          sessionId:
+            type: string
+            required: false
+            minLength: 36
+        body:
+          application/json:
+            type: PromptRequest
+            example:
+              {
+                "prompt": "This high-complexity initiative centers on developing a secure, scalable, and compliant Contact API. It acts as the canonical master data source for downstream consumers, integrating an enterprise CRM (the Source of Truth) with legacy subscriber systems"
+              }
+        responses:
+          200:
+            body:
+              application/json:
+
+  /generateQuestions:
+    post:
+      description: This resource basically helps to generate the missing questions based on the architeture.
+      queryParameters:
+          sessionId:
+            type: string
+            required: true
+            minLength: 36
+      body:
+        application/json:
+          type: PromptRequest
+          example:
+            {
+              "prompt": "This high-complexity initiative centers on developing a secure, scalable, and compliant Contact API. It acts as the canonical master data source for downstream consumers, integrating an enterprise CRM (the Source of Truth) with legacy subscriber systems"
+            }
+      responses:
+        200:
+          body:
+            application/json:
+  /generateTasks:
+    post:
+      description: This resource basically helps to generate the tasks to in order to complete the development.
+      queryParameters:
+          sessionId:
+            type: string
+            required: true
+            minLength: 36
+      body:
+        application/json:
+          type: PromptRequest
+          example:
+            {
+              "prompt": "This high-complexity initiative centers on developing a secure, scalable, and compliant Contact API. It acts as the canonical master data source for downstream consumers, integrating an enterprise CRM (the Source of Truth) with legacy subscriber systems"
+            }
+      responses:
+        200:
+          body:
+            application/json:
+  /lld:
+    post:
+      description: This resource basically helps to generate the flow level design image.
+      queryParameters:
+          sessionId:
+            type: string
+            required: true
+            minLength: 36
+      body:
+        application/json:
+          type: PromptRequest
+          example:
+            {
+              "prompt": "create an flow level design image"
+            }
+      responses:
+        200:
+  /lld-new:
+    post:
+      description: This resource basically helps to generate the flow level design image.
+      queryParameters:
+          sessionId:
+            type: string
+            required: true
+            minLength: 36
+      responses:
+        200:
+  /dataMapping:
+    post:
+      description: This resource basically helps to generate the Api details.
+      queryParameters:
+          sessionId:
+            type: string
+            required: true
+            minLength: 36
+      body:
+        application/json:
+          type: PromptRequest
+          example:
+            {
+              "prompt": "create an flow level design image"
+            }
+      responses:
+        200:
