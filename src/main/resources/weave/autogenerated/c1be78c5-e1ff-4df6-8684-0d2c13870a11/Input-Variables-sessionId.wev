@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_c1be78c5_e1ff_4df6_8684_0d2c13870a11_Input_Variables_sessionId = String
+

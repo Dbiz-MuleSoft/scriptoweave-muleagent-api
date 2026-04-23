@@ -27,7 +27,9 @@ http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/m
 		doc:id="10354387-e8d4-4ecb-a21a-c25c5764cbc6">
 		<logger level="INFO" doc:name="Entry Logger"
 			doc:id="833415c5-c42f-4922-abe1-b4fffd65d725" />
-		<flow-ref doc:name="agent-api-start-conversation" doc:id="997e020d-3ed4-41b8-9560-6431d5b6cda5" name="agent-api-start-conversation" />
+		<flow-ref doc:name="agent-api-start-conversation"
+			doc:id="997e020d-3ed4-41b8-9560-6431d5b6cda5"
+			name="agent-api-start-conversation" />
 		<ee:transform doc:name="Final Mapping"
 			doc:id="92f9afc7-7848-4f68-96d8-31247e074bb8">
 			<ee:message>

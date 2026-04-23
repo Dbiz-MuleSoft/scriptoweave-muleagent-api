@@ -142,19 +142,26 @@ types:
             }
       responses:
         200:
-  /lld-new:
+  /dataMapping:
     post:
-      description: This resource basically helps to generate the flow level design image.
+      description: This resource basically helps to generate the Api details.
       queryParameters:
           sessionId:
             type: string
             required: true
             minLength: 36
+      body:
+        application/json:
+          type: PromptRequest
+          example:
+            {
+              "prompt": "create an flow level design image"
+            }
       responses:
         200:
-  /dataMapping:
+  /script:
     post:
-      description: This resource basically helps to generate the Api details.
+      description: This resource basically helps to generate the dataweave scripts.
       queryParameters:
           sessionId:
             type: string
