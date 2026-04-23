@@ -6,22 +6,10 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-	<flow name="design-analysis-generateTasksFlow"
-		doc:id="6dbe4eab-37b9-463b-beb9-df26404dd44a">
-		<flow-ref doc:name="Generate task"
-			doc:id="71435e2d-1ae8-4be9-8f36-48b293e3d1e4"
+	<flow name="design-scriptFlow"
+		doc:id="c1be78c5-e1ff-4df6-8684-0d2c13870a11">
+		<flow-ref doc:name="Flow Reference"
+			doc:id="d0dcbd2c-59c6-4874-9de9-35fc128b36c0"
 			name="agent-api-continue-conversation" />
-		<ee:transform doc:name="Transform Message"
-			doc:id="0add0957-764f-4755-a978-b03cacb8007d">
-			<ee:message>
-				<ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-	"sessionId": payload.sessionId,
-	"tasks": read(payload.analysis, "application/json")
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
 	</flow>
 </mule>

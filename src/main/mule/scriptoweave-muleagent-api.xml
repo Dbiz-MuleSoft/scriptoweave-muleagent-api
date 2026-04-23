@@ -1,165 +1,216 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ms-agentforce="http://www.mulesoft.org/schema/mule/ms-agentforce" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/ms-agentforce http://www.mulesoft.org/schema/mule/ms-agentforce/current/mule-ms-agentforce.xsd">
-    <flow name="agent-api-implementation-main">
-        <http:listener config-ref="agent-api-implementation-httpListenerConfig" path="/api/*">
-            <http:response statusCode="#[vars.httpStatus default 200]">
-                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
-            </http:response>
-            <http:error-response statusCode="#[vars.httpStatus default 500]">
-                <http:body>#[payload]</http:body>
-                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
-            </http:error-response>
-        </http:listener>
-        <apikit:router config-ref="agent-api-implementation-config" />
-        <error-handler>
-            <on-error-propagate type="APIKIT:BAD_REQUEST">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ms-agentforce="http://www.mulesoft.org/schema/mule/ms-agentforce"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/ms-agentforce http://www.mulesoft.org/schema/mule/ms-agentforce/current/mule-ms-agentforce.xsd">
+	<flow name="agent-api-implementation-main">
+		<http:listener
+			config-ref="agent-api-implementation-httpListenerConfig"
+			path="/api/*">
+			<http:response
+				statusCode="#[vars.httpStatus default 200]">
+				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+			</http:response>
+			<http:error-response
+				statusCode="#[vars.httpStatus default 500]">
+				<http:body>#[payload]</http:body>
+				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+			</http:error-response>
+		</http:listener>
+		<apikit:router
+			config-ref="agent-api-implementation-config" />
+		<error-handler>
+			<on-error-propagate type="APIKIT:BAD_REQUEST">
+				<ee:transform doc:name="Transform Message">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {message: "Bad request"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-            <on-error-propagate type="APIKIT:NOT_FOUND">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus">400
+						</ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate type="APIKIT:NOT_FOUND">
+				<ee:transform doc:name="Transform Message">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {message: "Resource not found"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus">404
+						</ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate
+				type="APIKIT:METHOD_NOT_ALLOWED">
+				<ee:transform doc:name="Transform Message">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {message: "Method not allowed"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus">405
+						</ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+				<ee:transform doc:name="Transform Message">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {message: "Not acceptable"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus">406
+						</ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate
+				type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+				<ee:transform doc:name="Transform Message">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {message: "Unsupported media type"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus">415
+						</ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+				<ee:transform doc:name="Transform Message">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {message: "Not Implemented"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-        </error-handler>
-    </flow>
-    <flow name="agent-api-implementation-console">
-        <http:listener config-ref="agent-api-implementation-httpListenerConfig" path="/console/*">
-            <http:response statusCode="#[vars.httpStatus default 200]">
-                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
-            </http:response>
-            <http:error-response statusCode="#[vars.httpStatus default 500]">
-                <http:body>#[payload]</http:body>
-                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
-            </http:error-response>
-        </http:listener>
-        <apikit:console config-ref="agent-api-implementation-config" />
-        <error-handler>
-            <on-error-propagate type="APIKIT:NOT_FOUND">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus">501
+						</ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="agent-api-implementation-console">
+		<http:listener
+			config-ref="agent-api-implementation-httpListenerConfig"
+			path="/console/*">
+			<http:response
+				statusCode="#[vars.httpStatus default 200]">
+				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+			</http:response>
+			<http:error-response
+				statusCode="#[vars.httpStatus default 500]">
+				<http:body>#[payload]</http:body>
+				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+			</http:error-response>
+		</http:listener>
+		<apikit:console
+			config-ref="agent-api-implementation-config" />
+		<error-handler>
+			<on-error-propagate type="APIKIT:NOT_FOUND">
+				<ee:transform doc:name="Transform Message">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {message: "Resource not found"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-        </error-handler>
-    </flow>
-    <flow name="post:\analysis:application\json:agent-api-implementation-config">
-        <flow-ref doc:name="agent-api-userstory-analysis" doc:id="6ae0abb6-a908-4668-a122-b3eef796c943" name="agent-api-userstory-analysis" />
-        <logger level="INFO" message="user story is analysed and provided prompt" doc:name="user story is analysed and provided prompt" />
-    </flow>
-    <flow name="post:\generateQuestions:application\json:agent-api-implementation-config">
-        <flow-ref doc:name="agent-api-generate-questions" doc:id="7668c520-7270-4ba6-a4dd-419669d1a1e8" name="agent-api-generate-questions" />
-        <logger level="INFO" message="clarification questions are generated" doc:name="clarification questions are generated" />
-    </flow>
-    <flow name="post:\design\analysis:application\json:agent-api-implementation-config">
-        <logger level="INFO" message="***************************************************************designi-spec flow started***************************************************************" doc:name="Logger Start" />
-        <ee:transform doc:name="Transform Message" doc:id="3ec73d03-9b38-4904-8947-ddf8424de8c7">
-            <ee:message />
-            <ee:variables>
-                <ee:set-variable variableName="incomingPayload"><![CDATA[%dw 2.0
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus">404
+						</ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow
+		name="post:\analysis:application\json:agent-api-implementation-config">
+		<flow-ref doc:name="agent-api-userstory-analysis"
+			doc:id="6ae0abb6-a908-4668-a122-b3eef796c943"
+			name="agent-api-userstory-analysis" />
+		<logger level="INFO"
+			message="user story is analysed and provided prompt"
+			doc:name="user story is analysed and provided prompt" />
+	</flow>
+	<flow
+		name="post:\generateQuestions:application\json:agent-api-implementation-config">
+		<flow-ref doc:name="agent-api-generate-questions"
+			doc:id="7668c520-7270-4ba6-a4dd-419669d1a1e8"
+			name="agent-api-generate-questions" />
+		<logger level="INFO"
+			message="clarification questions are generated"
+			doc:name="clarification questions are generated" />
+	</flow>
+	<flow
+		name="post:\design\analysis:application\json:agent-api-implementation-config">
+		<logger level="INFO"
+			message="***************************************************************designi-spec flow started***************************************************************"
+			doc:name="Logger Start" />
+		<ee:transform doc:name="Transform Message"
+			doc:id="3ec73d03-9b38-4904-8947-ddf8424de8c7">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="incomingPayload"><![CDATA[%dw 2.0
 output application/json
 ---
 payload]]></ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <flow-ref doc:name="design-spec-implementation" doc:id="3b0e0ef4-3ae1-468d-b90c-b0906ff4b194" name="design-analysis-implementationFlow" />
-        <logger level="INFO" doc:name="Logger End" doc:id="749d184e-4834-4f21-b27c-527e32d7bf3a" message="***************************************************************designi-spec flow ended***************************************************************" />
-    </flow>
-    <flow name="post:\design\analysis\id:application\json:agent-api-implementation-config">
-        <logger level="INFO" doc:name="Logger Start" doc:id="9b322131-e5a7-497b-a3b1-80c2e67afc6f" message="***************************************************************designi-spec flow started***************************************************************" />
-        <ee:transform doc:name="Transform Message" doc:id="f62d59c2-9e3b-4ec3-ba2e-a5dd16cc5d66">
-            <ee:message />
-            <ee:variables>
-                <ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="design-spec-implementation"
+			doc:id="3b0e0ef4-3ae1-468d-b90c-b0906ff4b194"
+			name="design-analysis-implementationFlow" />
+		<logger level="INFO" doc:name="Logger End"
+			doc:id="749d184e-4834-4f21-b27c-527e32d7bf3a"
+			message="***************************************************************designi-spec flow ended***************************************************************" />
+	</flow>
+	<flow
+		name="post:\design\analysis\id:application\json:agent-api-implementation-config">
+		<logger level="INFO" doc:name="Logger Start"
+			doc:id="9b322131-e5a7-497b-a3b1-80c2e67afc6f"
+			message="***************************************************************designi-spec flow started***************************************************************" />
+		<ee:transform doc:name="Transform Message"
+			doc:id="f62d59c2-9e3b-4ec3-ba2e-a5dd16cc5d66">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
 output application/json
 ---
 attributes.queryParams.sessionId]]></ee:set-variable>
-                <ee:set-variable variableName="message"><![CDATA[%dw 2.0
+				<ee:set-variable variableName="message"><![CDATA[%dw 2.0
 output application/java
 ---
 payload.prompt]]></ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <flow-ref doc:name="agent-api-continue-conversation" doc:id="a9e31cda-f005-4b49-9fb3-2961035d6e69" name="agent-api-continue-conversation" />
-        <ee:transform doc:name="finalmapping" doc:id="cb4d8ea5-f194-490d-8c5c-187b34aa3715">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="agent-api-continue-conversation"
+			doc:id="a9e31cda-f005-4b49-9fb3-2961035d6e69"
+			name="agent-api-continue-conversation" />
+		<ee:transform doc:name="finalmapping"
+			doc:id="cb4d8ea5-f194-490d-8c5c-187b34aa3715">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 //var analysis = (read(payload.analysis , "application/json"))
 ---
@@ -167,85 +218,148 @@ output application/json
     "sessionId": payload.sessionId,
     "analysis": ((read(payload.analysis , "application/json")) ) default payload
 }]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
-        <logger level="INFO" doc:name="Logger End" doc:id="e5f96440-b326-46be-91d7-0d303cf2b852" message="***************************************************************designi-spec flow ended***************************************************************" />
-    </flow>
-    <flow name="post:\design\generateQuestions:application\json:agent-api-implementation-config">
-        <logger level="INFO" doc:name="Logger Start" doc:id="ad6d5a82-d45f-46a2-b0cc-c5f60471f67d" message="***************************************************************designi-generateQuestion flow started***************************************************************" />
-        <ee:transform doc:name="Transform Message" doc:id="7dd8871d-b22a-4aa8-aa2b-dfef194d921e">
-            <ee:message />
-            <ee:variables>
-                <ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger End"
+			doc:id="e5f96440-b326-46be-91d7-0d303cf2b852"
+			message="***************************************************************designi-spec flow ended***************************************************************" />
+	</flow>
+	<flow
+		name="post:\design\generateQuestions:application\json:agent-api-implementation-config">
+		<logger level="INFO" doc:name="Logger Start"
+			doc:id="ad6d5a82-d45f-46a2-b0cc-c5f60471f67d"
+			message="***************************************************************designi-generateQuestion flow started***************************************************************" />
+		<ee:transform doc:name="Transform Message"
+			doc:id="7dd8871d-b22a-4aa8-aa2b-dfef194d921e">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
 output application/json
 ---
 attributes.queryParams.sessionId]]></ee:set-variable>
-                <ee:set-variable variableName="message"><![CDATA[%dw 2.0
+				<ee:set-variable variableName="message"><![CDATA[%dw 2.0
 output application/java
 ---
 payload.prompt]]></ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <flow-ref doc:name="agent-api-generate-questions" doc:id="b3a10322-7768-4203-acd1-a12c6b1b6fb9" name="design-analysis-generateQuestionsFlow" />
-        <logger level="INFO" doc:name="Logger End" doc:id="f15a27c6-776d-4f42-b5bf-058cf6ccfdbd" message="***************************************************************designi-generateQuestion flow ended***************************************************************" />
-    </flow>
-    <flow name="post:\design\generateTasks:application\json:agent-api-implementation-config">
-        <logger level="INFO" doc:name="Logger Start" doc:id="91794c8b-b6d9-4891-8435-6d022d15ca60" message="***************************************************************design-generateTasks flow started***************************************************************" />
-        <ee:transform doc:name="Transform Message" doc:id="321980ea-2d03-4ed6-8ea9-ed2dc3f90f12">
-            <ee:message />
-            <ee:variables>
-                <ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="agent-api-generate-questions"
+			doc:id="b3a10322-7768-4203-acd1-a12c6b1b6fb9"
+			name="design-analysis-generateQuestionsFlow" />
+		<logger level="INFO" doc:name="Logger End"
+			doc:id="f15a27c6-776d-4f42-b5bf-058cf6ccfdbd"
+			message="***************************************************************designi-generateQuestion flow ended***************************************************************" />
+	</flow>
+	<flow
+		name="post:\design\generateTasks:application\json:agent-api-implementation-config">
+		<logger level="INFO" doc:name="Logger Start"
+			doc:id="91794c8b-b6d9-4891-8435-6d022d15ca60"
+			message="***************************************************************design-generateTasks flow started***************************************************************" />
+		<ee:transform doc:name="Transform Message"
+			doc:id="321980ea-2d03-4ed6-8ea9-ed2dc3f90f12">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
 output application/json
 ---
 attributes.queryParams.sessionId]]></ee:set-variable>
-                <ee:set-variable variableName="message"><![CDATA[%dw 2.0
+				<ee:set-variable variableName="message"><![CDATA[%dw 2.0
 output application/java
 ---
 payload.prompt]]></ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <flow-ref doc:name="Flow Reference to design-analysis-generateTasksFlow" doc:id="c780024e-7b8e-4a7b-8ca4-69e448085890" name="design-analysis-generateTasksFlow" />
-        <logger level="INFO" doc:name="Logger End" doc:id="c1d454e1-ee84-4707-b9e5-dbff951a85be" message="***************************************************************design-generateTasks flow ended***************************************************************" />
-    </flow>
-    <flow name="post:\design\lld:application\json:agent-api-implementation-config">
-        <logger level="INFO" doc:name="Logger Start" doc:id="1b627044-8e0f-45a0-a04b-384ffae34390" message="***************************************************************design-IID flow started***************************************************************" />
-        <ee:transform doc:name="Transform Message" doc:id="da98f96a-b739-4f4c-8aa1-37d38af137f6">
-            <ee:message />
-            <ee:variables>
-                <ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
+			</ee:variables>
+		</ee:transform>
+		<flow-ref
+			doc:name="Flow Reference to design-analysis-generateTasksFlow"
+			doc:id="c780024e-7b8e-4a7b-8ca4-69e448085890"
+			name="design-analysis-generateTasksFlow" />
+		<logger level="INFO" doc:name="Logger End"
+			doc:id="c1d454e1-ee84-4707-b9e5-dbff951a85be"
+			message="***************************************************************design-generateTasks flow ended***************************************************************" />
+	</flow>
+	<flow
+		name="post:\design\lld:application\json:agent-api-implementation-config">
+		<logger level="INFO" doc:name="Logger Start"
+			doc:id="1b627044-8e0f-45a0-a04b-384ffae34390"
+			message="***************************************************************design-IID flow started***************************************************************" />
+		<ee:transform doc:name="Transform Message"
+			doc:id="da98f96a-b739-4f4c-8aa1-37d38af137f6">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
 output application/json
 ---
 attributes.queryParams.sessionId]]></ee:set-variable>
-				<ee:set-variable variableName="message" ><![CDATA[%dw 2.0
+				<ee:set-variable variableName="message"><![CDATA[%dw 2.0
 output application/json
 ---
 payload.prompt]]></ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <ms-agentforce:continue-agent-conversation doc:name="Continue agent conversation" doc:id="47c9d820-076e-4770-a1eb-b138c12949de" config-ref="Agentforce_Configuration_agent" messageSequenceNumber="1">
+			</ee:variables>
+		</ee:transform>
+		<ms-agentforce:continue-agent-conversation
+			doc:name="Continue agent conversation"
+			doc:id="47c9d820-076e-4770-a1eb-b138c12949de"
+			config-ref="Agentforce_Configuration_agent" messageSequenceNumber="1">
 			<ms-agentforce:message><![CDATA[#[vars.message]]]></ms-agentforce:message>
 			<ms-agentforce:session-id><![CDATA[#[vars.sessionId]]]></ms-agentforce:session-id>
 		</ms-agentforce:continue-agent-conversation>
-		<flow-ref doc:name="design-analysis-IIDFlow" doc:id="94cd24e4-a555-4546-9b62-0f25a937409c" name="design-analysis-IIDFlow"/>
-		<logger level="INFO" doc:name="Logger End" doc:id="bb1a6083-9ea4-491a-ac17-ba3c933f5697" message="***************************************************************design-IID flow ended***************************************************************" />
-    </flow>
-    <flow name="post:\design\dataMapping:application\json:agent-api-implementation-config">
-        <ee:transform doc:name="Transform Message" doc:id="fa9a9caa-223f-47eb-b640-c3e0b40c9fdb">
-            <ee:message />
-            <ee:variables>
-                <ee:set-variable variableName="message"><![CDATA[%dw 2.0
+		<flow-ref doc:name="design-analysis-IIDFlow"
+			doc:id="94cd24e4-a555-4546-9b62-0f25a937409c"
+			name="design-analysis-IIDFlow" />
+		<logger level="INFO" doc:name="Logger End"
+			doc:id="bb1a6083-9ea4-491a-ac17-ba3c933f5697"
+			message="***************************************************************design-IID flow ended***************************************************************" />
+	</flow>
+	<flow
+		name="post:\design\dataMapping:application\json:agent-api-implementation-config">
+		<ee:transform doc:name="Transform Message"
+			doc:id="fa9a9caa-223f-47eb-b640-c3e0b40c9fdb">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="message"><![CDATA[%dw 2.0
 output application/java
 ---
-"provide me an structured api design for " ++ payload.prompt]]></ee:set-variable>
-                <ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
+payload.prompt]]></ee:set-variable>
+				<ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
 output application/json
 ---
 attributes.queryParams.sessionId]]></ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <flow-ref doc:name="Flow Reference" doc:id="e5bc3017-077d-4c5b-ab4f-d27b1bab7ff4" name="design-datamappingFlow" />
-    </flow>
-    <flow name="post:\design\lld-new:agent-api-implementation-config">
-        <logger level="INFO" message="post:\design\lld-new:agent-api-implementation-config" />
-    </flow>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="Flow Reference"
+			doc:id="e5bc3017-077d-4c5b-ab4f-d27b1bab7ff4"
+			name="design-datamappingFlow" />
+	</flow>
+	<flow
+		name="post:\design\script:application\json:agent-api-implementation-config">
+		<ee:transform doc:name="Transform Message"
+			doc:id="12dbdb0b-11af-427f-ae4d-a33fe294b1cb">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="message"><![CDATA[%dw 2.0
+output application/json
+---
+payload.prompt]]></ee:set-variable>
+				<ee:set-variable variableName="sessionId"><![CDATA[%dw 2.0
+output application/json
+---
+attributes.queryParams.sessionId]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="Flow Reference"
+			doc:id="199b0bb2-3749-4396-b01a-bda52b13e0c0"
+			name="design-scriptFlow" />
+		<ee:transform doc:name="Transform Message"
+			doc:id="ef8476c2-55d3-490a-9b41-1449f07646a8">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "sessionId": payload.sessionId,
+    "analysis": read(payload.analysis, 'application/json')
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
 </mule>
