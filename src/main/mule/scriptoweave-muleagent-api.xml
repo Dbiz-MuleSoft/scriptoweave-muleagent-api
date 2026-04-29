@@ -377,6 +377,6 @@ output application/json
 			</ee:variables>
 		</ee:transform>
 		<flow-ref doc:name="code-generationSub_Flow" doc:id="316e9337-ee09-4a58-9af3-c47019c365c1" name="code-generationSub_Flow" />
-		<logger level="INFO" doc:name="Logger" doc:id="28685bc9-52d0-4783-9777-de504eb13782" message="End"/>
+		<logger level="INFO" doc:name="API zip file generated" doc:id="28685bc9-52d0-4783-9777-de504eb13782" message="End"/>
 	</flow>
 </mule>
