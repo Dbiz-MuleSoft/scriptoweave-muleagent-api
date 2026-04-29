@@ -13,12 +13,12 @@
 			path="/api/*">
 			<http:response
 				statusCode="#[vars.httpStatus default 200]">
-				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+				<http:headers><![CDATA[#[attributes.headers default {}]]]></http:headers>
 			</http:response>
 			<http:error-response
 				statusCode="#[vars.httpStatus default 500]">
-				<http:body>#[payload]</http:body>
-				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+				<http:body><![CDATA[#[payload]]]></http:body>
+				<http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
 			</http:error-response>
 		</http:listener>
 		<apikit:router
@@ -118,12 +118,12 @@ output application/json
 			path="/console/*">
 			<http:response
 				statusCode="#[vars.httpStatus default 200]">
-				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+				<http:headers><![CDATA[#[attributes.headers default {}]]]></http:headers>
 			</http:response>
 			<http:error-response
 				statusCode="#[vars.httpStatus default 500]">
-				<http:body>#[payload]</http:body>
-				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+				<http:body><![CDATA[#[payload]]]></http:body>
+				<http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
 			</http:error-response>
 		</http:listener>
 		<apikit:console
@@ -361,5 +361,22 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+	</flow>
+	<flow name="post:\generateAPI:application\json:agent-api-implementation-config" doc:id="7741fc8a-ac00-47a1-9418-c4f548ae14fd" >
+		<ee:transform doc:name="sessionId" doc:id="8ce5ac07-1451-4fca-a1b3-a39da13b694c" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="sessionId" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.queryParams.sessionId]]></ee:set-variable>
+				<ee:set-variable variableName="message" ><![CDATA[%dw 2.0
+output application/json
+---
+"You are a MuleSoft implementation generator. Convert the provided API design into a structured JSON implementation of $(payload.layerName default "") API for a project generator."]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="code-generationSub_Flow" doc:id="316e9337-ee09-4a58-9af3-c47019c365c1" name="code-generationSub_Flow" />
+		<logger level="INFO" doc:name="Logger" doc:id="28685bc9-52d0-4783-9777-de504eb13782" message="End"/>
 	</flow>
 </mule>
