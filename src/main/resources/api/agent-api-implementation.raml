@@ -176,3 +176,24 @@ types:
             }
       responses:
         200:
+        
+/generateAPI:
+  post:
+    description: Generate zip file for Mule Project
+    queryParameters:
+      sessionId:
+        type: string
+        required: true
+    body:
+      application/json:
+        type: object
+        properties:
+          layerName: string
+        example:
+          {
+            "layerName": "Experience"
+          }
+    responses:
+      200:
+        body:
+          application/json:

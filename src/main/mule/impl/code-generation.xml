@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+	<sub-flow name="code-generationSub_Flow" doc:id="300353cb-a9f3-4e56-aff0-0f4f2ab81eee" >
+		<flow-ref doc:name="agent-api-continue-conversation" doc:id="6f0d1371-5048-4291-b91d-2429c0831ca9" name="agent-api-continue-conversation"/>
+		<ee:transform doc:name="json for code generation" doc:id="8d11ca4f-9458-48bc-8329-037ea6f69f0b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+read(payload.analysis, "application/json")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<flow-ref doc:name="createMuleProject" doc:id="1b2bf2fc-1111-4963-b5d8-fa3b15e53e6a" name="createMuleProject"/>
+	</sub-flow>
+	<sub-flow name="createMuleProject" doc:id="141ad172-faa2-400d-b2c1-2c6a6e5ecb0c" >
+		<logger level="INFO" doc:name="Log Incoming Payload" doc:id="44057472-6696-4ecc-ab86-6855276c56b1" message="Incoming API Design: #[payload]" />
+		<set-variable value="#[payload]" doc:name="Set API Design JSON String" doc:id="7826d3f7-9ef5-4d5c-a97c-e5042564798d" variableName="apiDesignJsonString" />
+		<flow-ref doc:name="buildApiZip" doc:id="28040182-7b1c-4250-9c47-6fa4d6639563" name="buildApiZip" />
+		<logger level="INFO" doc:name="Log API Zip Creation" doc:id="a06e447e-2f21-4e5a-9b46-b80902184433" message="API Zip File Created Successfully" />
+		<ee:transform doc:name="Set Binary Payload and Headers" doc:id="1871fb56-473b-4715-b076-2402cf44bf4c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/octet-stream 
+---
+vars.apiZipFile]]></ee:set-payload>
+				<ee:set-attributes ><![CDATA[%dw 2.0
+output application/java
+// Format: YearMonthDay_HourMinuteSecond
+var timestamp = now() as String {format: "yyyyMMdd_HHmmss"}
+---
+{
+    headers: {
+        "Content-Type": "application/zip",
+        "Content-Disposition": "attachment; filename=\"mule-api-projects_" ++ timestamp ++ ".zip\"",
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+    }
+}]]></ee:set-attributes>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="buildApiZip" doc:id="0e481d29-2e4c-4949-86b9-0e84342a7437" >
+		<try doc:name="Try" doc:id="4e94d9b9-0659-4c98-bf18-8d63f438f7d2" >
+			<java:invoke-static method="buildApiZip(java.lang.String)" doc:name="Build API Zip" doc:id="3624bada-64f9-477a-89ae-290d8f0d562f" class="com.mycompany.ApiZipBuilder" target="apiZipFile" >
+				<java:args ><![CDATA[#[{jsonDesign: payload.^raw as String}]]]></java:args>
+			</java:invoke-static>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a4d712e2-22e0-401c-a80e-33e7bd5ee654" >
+					<ee:transform doc:name="Set Error Response" doc:id="c3dcbe72-8e34-4e64-85c6-3862d86ab84b" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "error": "Failed to create API zip file",
+    "details": error.description
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-continue>
+			</error-handler>
+		</try>
+	</sub-flow>
+</mule>
