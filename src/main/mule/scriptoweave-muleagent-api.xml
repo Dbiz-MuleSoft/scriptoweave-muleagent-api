@@ -363,17 +363,40 @@ output application/json
 		</ee:transform>
 	</flow>
 	<flow name="post:\generateAPI:application\json:agent-api-implementation-config" doc:id="7741fc8a-ac00-47a1-9418-c4f548ae14fd" >
-		<ee:transform doc:name="sessionId" doc:id="8ce5ac07-1451-4fca-a1b3-a39da13b694c" >
+		<!-- [STUDIO:"sessionId"]<ee:transform doc:name="sessionId" doc:id="8ce5ac07-1451-4fca-a1b3-a39da13b694c" >
 			<ee:message />
 			<ee:variables >
 				<ee:set-variable variableName="sessionId" ><![CDATA[%dw 2.0
 output application/json
+&#45;&#45;-
+attributes.queryParams.sessionId&#93;&#93;></ee:set-variable>
+				<ee:set-variable variableName="message" ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+"You are a MuleSoft implementation generator. Convert the provided API design into a structured JSON implementation of $(payload.layerName default "") API for a project generator."&#93;&#93;></ee:set-variable>
+			</ee:variables>
+		</ee:transform> [STUDIO] -->
+		<ee:transform doc:name="Transform Message" doc:id="d1c4c138-82d9-43f7-b497-4b72583c8faa" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="sessionId" ><![CDATA[%dw 2.0
+output application/json
 ---
-attributes.queryParams.sessionId]]></ee:set-variable>
+attributes.queryParams.sessionId default null]]></ee:set-variable>
 				<ee:set-variable variableName="message" ><![CDATA[%dw 2.0
 output application/json
 ---
-"You are a MuleSoft implementation generator. Convert the provided API design into a structured JSON implementation of $(payload.layerName default "") API for a project generator."]]></ee:set-variable>
+if (!isEmpty(attributes.queryParams.sessionId)) 
+
+   "You are a MuleSoft implementation generator. Convert the provided API design into a structured JSON implementation of " 
+           ++ (payload.layerName default "") 
+           ++ " API for a project generator."
+
+else 
+
+  "Identify the layer experience,process or system layer from the context and create structured JSON implementation of the respective layer for a project generator.: "++ payload.prompt
+]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<flow-ref doc:name="code-generationSub_Flow" doc:id="316e9337-ee09-4a58-9af3-c47019c365c1" name="code-generationSub_Flow" />
