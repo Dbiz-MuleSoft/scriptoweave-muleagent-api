@@ -18,10 +18,10 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 		api="agent-api-implementation.raml"
 		outboundHeadersMapName="outboundHeaders"
 		httpStatusVarName="httpStatus" />
-	<api-gateway:autodiscovery apiId="${api.id}"
+	<!-- <api-gateway:autodiscovery apiId="${api.id}"
 		ignoreBasePath="true" doc:name="API Autodiscovery"
 		doc:id="7efc00a0-55b0-4ab8-8811-4ddc0105e295"
-		flowRef="agent-api-implementation-main" />
+		flowRef="agent-api-implementation-main" /> -->
 	<http:listener-config
 		name="agent-api-implementation-httpListenerConfig">
 		<http:listener-connection host="${http.host}"
