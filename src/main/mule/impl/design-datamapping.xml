@@ -39,7 +39,7 @@ output application/json
             "endpointName": item.endpointName,
             "method": item.method,
             "payload": item.'payload',
-            "flowDesign": item.flowDesign,
+           // "flowDesign": item.flowDesign,
             "dataTransformation": item.dataTransformation replace "\n" with ""
         } )
     }

@@ -316,9 +316,21 @@ public class ApiZipBuilder {
     }
     
     private static String generateDbXml(JsonNode step, String docId) {
+        // 1. Get the config node safely
         JsonNode config = step.get("config");
-        String table = config.get("table").asText();
         
+        // 2. Default value if config is missing or keys don't exist
+        String table = "UNKNOWN_TABLE";
+        
+        if (config != null) {
+            if (config.has("table")) {
+                table = config.get("table").asText();
+            } else if (config.has("target")) {
+                table = config.get("target").asText();
+            } else if (config.has("tableName")) {
+                table = config.get("tableName").asText();
+            }
+        }
         return String.format("<db:insert doc:name=\"Insert to %s\" doc:id=\"%s\" config-ref=\"Database_Config\">\n" +
                            "            <db:sql>INSERT INTO %s (appointmentId, firstName, lastName, primaryEmail, primaryPhone, appointmentType) VALUES (:appointmentId, :firstName, :lastName, :primaryEmail, :primaryPhone, :appointmentType)</db:sql>\n" +
                            "            <db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>\n" +

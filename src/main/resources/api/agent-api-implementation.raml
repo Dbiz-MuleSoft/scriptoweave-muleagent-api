@@ -183,12 +183,12 @@ types:
     queryParameters:
       sessionId:
         type: string
-        required: true
+        required: false
     body:
       application/json:
         type: object
         properties:
-          layerName: string
+          layerName?: string
         example:
           {
             "layerName": "Experience"
@@ -197,3 +197,4 @@ types:
       200:
         body:
           application/json:
+          

@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:ms-agentforce="http://www.mulesoft.org/schema/mule/ms-agentforce" xmlns:java="http://www.mulesoft.org/schema/mule/java"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/ms-agentforce http://www.mulesoft.org/schema/mule/ms-agentforce/current/mule-ms-agentforce.xsd">
 	<sub-flow name="code-generationSub_Flow" doc:id="300353cb-a9f3-4e56-aff0-0f4f2ab81eee" >
-		<flow-ref doc:name="agent-api-continue-conversation" doc:id="6f0d1371-5048-4291-b91d-2429c0831ca9" name="agent-api-continue-conversation"/>
+		<choice doc:name="Choice" doc:id="f9a7230c-d1d0-474b-8d2b-cc4927e5f93b" >
+			<when expression="#[!isEmpty(vars.sessionId)]">
+				<flow-ref doc:name="agent-api-continue-conversation" doc:id="6f0d1371-5048-4291-b91d-2429c0831ca9" name="agent-api-continue-conversation" />
+			</when>
+			<when expression="#[isEmpty(vars.sessionId)]">
+				<flow-ref doc:name="context-based-json-creation" doc:id="9719908d-9222-4ec9-a938-23a56dc4e316" name="context-based-json-creation"/>
+			</when>
+		</choice>
 		<ee:transform doc:name="json for code generation" doc:id="8d11ca4f-9458-48bc-8329-037ea6f69f0b" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -15,11 +23,49 @@ output application/json
 read(payload.analysis, "application/json")]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message" doc:id="6d1911c1-27ad-4e9a-b55e-b9c0a4041daa" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+fun sanitize(item) = 
+    item match {
+        case is Array  -> item map (if ($ == "URL_Redacted") "unknown_field" else sanitize($))
+        case is Object -> item mapObject (v, k) -> {
+            // Check if Key is redacted OR if Value is redacted
+            (if (k as String == "URL_Redacted") "recovered_key" else k): 
+                if (v == "URL_Redacted") (k as String) else sanitize(v)
+        }
+        else -> item
+    }
+&#45;&#45;-
+sanitize(read(payload.analysis default "{}", "application/json"))&#93;&#93;></ee:set-payload>
+			</ee:message>
+		</ee:transform> [STUDIO] -->
 		<flow-ref doc:name="createMuleProject" doc:id="1b2bf2fc-1111-4963-b5d8-fa3b15e53e6a" name="createMuleProject"/>
 	</sub-flow>
 	<sub-flow name="createMuleProject" doc:id="141ad172-faa2-400d-b2c1-2c6a6e5ecb0c" >
 		<logger level="INFO" doc:name="Log Incoming Payload" doc:id="44057472-6696-4ecc-ab86-6855276c56b1" message="Incoming API Design: #[payload]" />
 		<set-variable value="#[payload]" doc:name="Set API Design JSON String" doc:id="7826d3f7-9ef5-4d5c-a97c-e5042564798d" variableName="apiDesignJsonString" />
+		<ee:transform doc:name="Transform Message" doc:id="4ac99dc9-b9ee-4def-9d33-64ea2d711091" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+if (payload.layers is Array)
+  payload
+else
+  // Wrap flat structure into layers format for Java compatibility
+  {
+    layers: [
+      {
+        name: if (!isEmpty(payload.layer)) lower(payload.layer) else payload.layerName default "apilayer",
+        flows: payload.flows default []
+      }
+    ]
+  }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<flow-ref doc:name="buildApiZip" doc:id="28040182-7b1c-4250-9c47-6fa4d6639563" name="buildApiZip" />
 		<logger level="INFO" doc:name="Log API Zip Creation" doc:id="a06e447e-2f21-4e5a-9b46-b80902184433" message="API Zip File Created Successfully" />
 		<ee:transform doc:name="Set Binary Payload and Headers" doc:id="1871fb56-473b-4715-b076-2402cf44bf4c" >
@@ -65,4 +111,24 @@ output application/json
 			</error-handler>
 		</try>
 	</sub-flow>
+	<flow name="context-based-json-creation" doc:id="2b2ef5b5-6f00-4ad6-8925-a4665dc9f3f4" >
+		<ms-agentforce:start-agent-conversation agent="0Xxg5000000b6WHCAY" doc:name="Start agent conversation" doc:id="ac3ea93e-80e5-4706-82cf-b4dfe8ca089a" config-ref="Agentforce_Configuration_agent" />
+		<set-variable value="#[payload.sessionId]" doc:name="sessionId" doc:id="f1d71149-7d10-4ea8-bc7f-8f6ca52cad37" variableName="sessionId" />
+		<flow-ref doc:name="agent-api-continue-conversation" doc:id="8044ebc4-2cd7-49d5-8f59-4d9f7bbc06dc" name="agent-api-continue-conversation" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0290ff66-bde5-47dd-9897-c3b6e1d4e85a" type="ANY" >
+				<ee:transform doc:name="Transform Message" doc:id="b122b2e0-3c1d-4f8e-87e1-6e7ff48cd21c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"sessionId": vars.sessionId,
+	"message": payload.analysis default "something went wrong please try again later !"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
 </mule>
