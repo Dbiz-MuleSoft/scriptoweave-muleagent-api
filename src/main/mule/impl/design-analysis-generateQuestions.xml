@@ -21,7 +21,7 @@ var formattedPayload = (read(payload.analysis, "application/json"))
 {
     "sessionId": payload.sessionId,
     "analysis": {
-    "designRealatedQuestions": formattedPayload.DesignRealatedQuestions joinBy " | " default "NA",
+    "designRealatedQuestions": formattedPayload.designRelatedQuestions joinBy " | " default "NA",
     "configurationRelatedQuestions": formattedPayload.configurationRelatedQuestions joinBy " | "  default "NA",
     "securityRelatedQuestions": formattedPayload.securityRelatedQuestions joinBy " | "  default "NA",
     "deploymentRelatedQuestions": formattedPayload.deploymentRelatedQuestions joinBy " | "  default "NA",
