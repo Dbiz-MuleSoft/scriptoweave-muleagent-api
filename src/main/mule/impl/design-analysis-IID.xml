@@ -23,7 +23,7 @@ payload]]></ee:set-payload>
 		</ee:transform>
 		<http:request method="POST" doc:name="Request"
 			doc:id="9d2af72f-f7c7-4ff1-ac46-698da6664d2f"
-			url="https://kroki.io/ditaa/svg">
+			url="https://kroki.io/seqdiag/svg">
 			<http:headers><![CDATA[#[%dw 2.0
 output application/java
 ---
